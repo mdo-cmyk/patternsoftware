@@ -7,7 +7,13 @@ services:
     startCommand: npm start
     autoDeploy: true
     envVars:
-      - key: MONGODB_URI
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: SESSION_SECRET
         sync: false
       - key: PORT
         value: 3000

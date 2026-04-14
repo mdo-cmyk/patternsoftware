@@ -2,11 +2,11 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const mongoose = require('mongoose');
 const PatternRecord = require('../models/PatternRecord');
 const PatternMaster = require('../models/PatternMaster');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const { isValidId } = require('../db/modelHelpers');
 const { requireAuth } = require('../middleware/auth');
 const { DEFAULT_PARTY_NAMES } = require('../config/defaultUsers');
 const {
@@ -453,7 +453,7 @@ router.get('/patterns-list', requireAuth, async (req, res) => {
       ];
     }
 
-    if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+    if (userId && !isValidId(userId)) {
       return res.status(400).json({ error: 'Selected user is invalid' });
     }
 
@@ -464,24 +464,25 @@ router.get('/patterns-list', requireAuth, async (req, res) => {
       patternNumber: { $in: patternNumbers }
     };
     if (userId) {
-      recordMatch.userId = new mongoose.Types.ObjectId(userId);
+      recordMatch.userId = userId;
     }
 
-    const latestByPatternAndType = await PatternRecord.aggregate([
-      { $match: recordMatch },
-      { $sort: { recordDate: -1, createdAt: -1 } },
-      {
-        $group: {
-          _id: { patternNumber: '$patternNumber', type: '$type' },
-          patternNumber: { $first: '$patternNumber' },
-          type: { $first: '$type' },
-          handoverTo: { $first: '$handoverTo' },
-          receiveFrom: { $first: '$receiveFrom' },
-          recordDate: { $first: '$recordDate' },
-          userId: { $first: '$userId' }
-        }
+    const matchingRecords = await PatternRecord.find(recordMatch).sort({ recordDate: -1, createdAt: -1 });
+    const latestMap = new Map();
+    matchingRecords.forEach((record) => {
+      const key = `${record.patternNumber}::${record.type}`;
+      if (!latestMap.has(key)) {
+        latestMap.set(key, {
+          patternNumber: record.patternNumber,
+          type: record.type,
+          handoverTo: record.handoverTo,
+          receiveFrom: record.receiveFrom,
+          recordDate: record.recordDate,
+          userId: record.userId
+        });
       }
-    ]);
+    });
+    const latestByPatternAndType = Array.from(latestMap.values());
 
     const userIds = Array.from(new Set(latestByPatternAndType.map(row => String(row.userId || '')).filter(Boolean)));
     const users = userIds.length
@@ -665,8 +666,8 @@ router.get('/pattern-records', requireAuth, async (req, res) => {
     }
 
     if (userId) {
-      if (mongoose.Types.ObjectId.isValid(userId)) {
-        filters.push({ userId: new mongoose.Types.ObjectId(userId) });
+      if (isValidId(userId)) {
+        filters.push({ userId });
       } else {
         console.warn('Invalid userId passed to /pattern-records:', userId);
         return res.json([]);
@@ -705,10 +706,10 @@ router.get('/export/pattern-records.xlsx', requireAuth, async (req, res) => {
     if (req.session.role === 'admin') {
       const userId = String(req.query.userId || '').trim();
       if (userId) {
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!isValidId(userId)) {
           return res.status(400).json({ error: 'Selected user is invalid' });
         }
-        userFilter = { userId: new mongoose.Types.ObjectId(userId) };
+        userFilter = { userId };
       }
     }
 
@@ -772,10 +773,10 @@ router.get('/export/pattern-records.pdf', requireAuth, async (req, res) => {
     if (req.session.role === 'admin') {
       const userId = String(req.query.userId || '').trim();
       if (userId) {
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!isValidId(userId)) {
           return res.status(400).json({ error: 'Selected user is invalid' });
         }
-        userFilter = { userId: new mongoose.Types.ObjectId(userId) };
+        userFilter = { userId };
       }
     }
 

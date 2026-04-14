@@ -1,7 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
 const path = require('path');
 const User = require('./models/User');
 const bcrypt = require('bcryptjs');
@@ -13,16 +11,9 @@ const {
 } = require('./config/defaultUsers');
 
 const app = express();
-const databaseUrl = process.env.MONGODB_URI || 'mongodb://localhost:27017/mototekPatternManagement';
 const sessionSecret = process.env.SESSION_SECRET || 'your-secret-key';
 
-// Connect to MongoDB
-mongoose.connect(databaseUrl)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
-
-// Create initial users
-mongoose.connection.once('open', async () => {
+async function ensureDefaultUsers() {
   for (const defaultUser of DEFAULT_USER_ACCOUNTS) {
     const userExists = await User.findOne({ username: defaultUser.username });
     if (!userExists) {
@@ -36,6 +27,11 @@ mongoose.connection.once('open', async () => {
       console.log(`Default user created: username: ${defaultUser.username}, password: ${defaultUser.password}`);
     }
   }
+}
+
+const initializeUsersPromise = ensureDefaultUsers().catch((error) => {
+  console.error('Failed to initialize Firebase data:', error);
+  throw error;
 });
 
 // Middleware
@@ -49,8 +45,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: sessionSecret,
   resave: false,
-  saveUninitialized: false,
-  store: new MongoStore({ url: databaseUrl })
+  saveUninitialized: false
 }));
 
 // Routes
@@ -90,7 +85,12 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 if (require.main === module) {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  initializeUsersPromise
+    .then(() => app.listen(PORT, () => console.log(`Server running on port ${PORT}`)))
+    .catch((error) => {
+      console.error('Failed to initialize Firebase data:', error);
+      process.exit(1);
+    });
 }
 
 module.exports = app;

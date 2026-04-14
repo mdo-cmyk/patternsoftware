@@ -1,17 +1,7 @@
-const mongoose = require('mongoose');
+const { FirestoreModel } = require('../db/modelHelpers');
 
-const patternRecordSchema = new mongoose.Schema({
-  patternNumber: { type: String, required: true, trim: true, index: true },
-  patternName: { type: String, required: true, trim: true },
-  type: { type: String, enum: ['handover', 'receive'], required: true },
-  handoverTo: { type: String, trim: true, default: null },
-  receiveFrom: { type: String, trim: true, default: null },
-  recordDate: { type: Date, required: true },
-  photoPath: { type: String, default: null },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  createdAt: { type: Date, default: Date.now }
-});
+class PatternRecord extends FirestoreModel {}
 
-patternRecordSchema.index({ patternNumber: 1, createdAt: -1 });
+PatternRecord.collectionName = 'patternRecords';
 
-module.exports = mongoose.model('PatternRecord', patternRecordSchema);
+module.exports = PatternRecord;

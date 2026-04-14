@@ -17,7 +17,7 @@ async function getSessionUsername(req) {
     return '';
   }
 
-  const user = await User.findById(req.session.userId).select('username');
+  const user = await User.findById(req.session.userId);
   if (!user) {
     return '';
   }
