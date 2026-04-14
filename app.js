@@ -14,6 +14,7 @@ const {
 
 const app = express();
 const databaseUrl = process.env.MONGODB_URI || 'mongodb://localhost:27017/mototekPatternManagement';
+const sessionSecret = process.env.SESSION_SECRET || 'your-secret-key';
 
 // Connect to MongoDB
 mongoose.connect(databaseUrl)
@@ -46,7 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Session
 app.use(session({
-  secret: 'your-secret-key', // Change to environment variable in production
+  secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
   store: new MongoStore({ url: databaseUrl })
@@ -87,4 +88,9 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+module.exports = app;
