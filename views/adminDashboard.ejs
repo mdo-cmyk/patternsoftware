@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Mototek Pattern Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <% const handoverCount = records.filter(record => record.type === 'handover').length; %>
+  <% const receiveCount = records.filter(record => record.type === 'receive').length; %>
+  <main class="page stack-xl">
+    <header class="topbar fade-up">
+      <div class="brand-lockup">
+        <div class="brand-mark">MP</div>
+        <div class="brand-copy">
+          <p class="brand-title">Mototek Pattern Management</p>
+          <p class="brand-subtitle">Admin panel for user accounts and pattern activity.</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <a href="/users/add" class="button">Add User</a>
+        <a href="/logout" class="button secondary">Logout</a>
+      </div>
+    </header>
+
+    <section class="stats-grid fade-up delay-1">
+      <article class="stat-card">
+        <span class="stat-label">Users</span>
+        <p class="stat-value"><%= users.length %></p>
+        <p class="supporting-text">Active user accounts with access to the dashboard.</p>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Pattern handover</span>
+        <p class="stat-value"><%= handoverCount %></p>
+        <p class="supporting-text">Saved handover records across all users.</p>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Pattern receive</span>
+        <p class="stat-value"><%= receiveCount %></p>
+        <p class="supporting-text">Saved receive records across all users.</p>
+      </article>
+    </section>
+
+    <section class="panel fade-up delay-2">
+      <div class="section-heading">
+        <div class="stack">
+          <h2 class="section-title">Users and pattern records</h2>
+          <p class="section-copy">Each user card shows handover and receive entries saved from the user dashboard.</p>
+        </div>
+      </div>
+
+      <% if (!users.length) { %>
+        <div class="empty-state">
+          <h3>No users added yet</h3>
+          <p>Create the first user to start saving pattern movement records.</p>
+        </div>
+      <% } else { %>
+        <div class="card-grid">
+          <% users.forEach(user => { %>
+            <% const userRecords = records.filter(record => record.userId && record.userId._id.toString() === user._id.toString()); %>
+            <% const userHandovers = userRecords.filter(record => record.type === 'handover').length; %>
+            <% const userReceives = userRecords.filter(record => record.type === 'receive').length; %>
+            <article class="user-card">
+              <div class="user-head">
+                <div class="stack">
+                  <div class="stack">
+                    <h3 class="user-name"><%= user.username %></h3>
+                    <p class="supporting-text"><%= userRecords.length %> pattern record<%= userRecords.length === 1 ? '' : 's' %> saved by this user.</p>
+                  </div>
+                  <div class="chip-row">
+                    <span class="chip">Handover: <%= userHandovers %></span>
+                    <span class="chip">Receive: <%= userReceives %></span>
+                  </div>
+                </div>
+
+                <span class="status-pill"><%= userRecords.length %> records</span>
+              </div>
+
+              <div class="summary-grid">
+                <div class="meta-block">
+                  <span class="meta-label">Pattern handover</span>
+                  <span class="meta-value"><%= userHandovers %></span>
+                </div>
+                <div class="meta-block">
+                  <span class="meta-label">Pattern receive</span>
+                  <span class="meta-value"><%= userReceives %></span>
+                </div>
+              </div>
+
+              <div class="inline-actions">
+                <form action="/users/delete/<%= user._id %>" method="POST">
+                  <button type="submit" class="danger">Delete User</button>
+                </form>
+              </div>
+
+              <% if (!userRecords.length) { %>
+                <div class="empty-state">
+                  <h3>No pattern records linked</h3>
+                  <p>This user has not saved any handover or receive entry yet.</p>
+                </div>
+              <% } else { %>
+                <div class="motor-list">
+                  <% userRecords.forEach(record => { %>
+                    <article class="motor-card">
+                      <div class="motor-head">
+                        <div class="stack">
+                          <h4 class="motor-name"><%= record.patternName %></h4>
+                          <p class="supporting-text">Pattern No: <%= record.patternNumber %></p>
+                        </div>
+                        <span class="status-pill"><%= record.type === 'handover' ? 'Handover' : 'Receive' %></span>
+                      </div>
+
+                      <div class="meta-grid">
+                        <div class="meta-block">
+                          <span class="meta-label"><%= record.type === 'handover' ? 'Handover to' : 'Receive from' %></span>
+                          <span class="meta-value"><%= record.type === 'handover' ? record.handoverTo : record.receiveFrom %></span>
+                        </div>
+                        <div class="meta-block">
+                          <span class="meta-label">Date</span>
+                          <span class="meta-value"><%= record.recordDate.toDateString() %></span>
+                        </div>
+                      </div>
+
+                      <div class="inline-actions">
+                        <form action="/patterns/delete/<%= record._id %>" method="POST">
+                          <button type="submit" class="danger">Delete Record</button>
+                        </form>
+                      </div>
+
+                      <% if (record.photoPath) { %>
+                        <div class="photo-frame">
+                          <img src="/uploads/<%= record.photoPath %>" alt="Pattern photo for <%= record.patternName %>">
+                        </div>
+                      <% } %>
+                    </article>
+                  <% }) %>
+                </div>
+              <% } %>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

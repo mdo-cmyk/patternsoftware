@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Mototek Pattern Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-page-body">
+  <main class="login-page">
+    <section class="login-panel fade-up">
+      <div class="login-intro">
+        <span class="login-kicker">Secure Access</span>
+        <h1 class="login-title">Dashboard Login</h1>
+        <p class="login-copy">Sign in to manage pattern handover, pattern receive, user access, and daily movement records.</p>
+      </div>
+
+      <% if (error) { %>
+        <p class="error"><%= error %></p>
+      <% } %>
+
+      <form action="/login" method="POST" class="login-form">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" type="text" name="username" placeholder="Enter username" autocomplete="username" required>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" name="password" placeholder="Enter password" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="login-submit">Login</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

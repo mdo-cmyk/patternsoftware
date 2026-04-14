@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Dashboard | Mototek Pattern Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <% const handoverCount = records.filter(record => record.type === 'handover').length; %>
+  <% const receiveCount = records.filter(record => record.type === 'receive').length; %>
+  <% const photoCount = records.filter(record => record.photoPath).length; %>
+  <main class="page stack-xl">
+    <header class="topbar fade-up">
+      <div class="brand-lockup">
+        <div class="brand-mark">MP</div>
+        <div class="brand-copy">
+          <p class="brand-title">Mototek Pattern Management</p>
+          <p class="brand-subtitle">Track pattern handover and receive activity.</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <a href="/logout" class="button secondary">Logout</a>
+      </div>
+    </header>
+
+    <section class="hero-panel fade-up delay-1">
+      <div class="hero-copy">
+        <span class="eyebrow">User dashboard</span>
+        <h1 class="page-title">Manage your pattern handover and receive pages.</h1>
+        <p class="page-subtitle">Open Pattern Handover or Pattern Receive, search with pattern number, auto-fill the pattern name, and save each record with date and photo.</p>
+
+        <div class="pill-row">
+          <span class="info-pill">Total records: <%= records.length %></span>
+          <span class="info-pill">Handover: <%= handoverCount %></span>
+          <span class="info-pill">Receive: <%= receiveCount %></span>
+        </div>
+
+        <div class="inline-actions">
+          <a href="/patterns/handover" class="button">Pattern Handover</a>
+          <a href="/patterns/receive" class="button secondary">Pattern Receive</a>
+        </div>
+      </div>
+
+      <aside class="hero-side">
+        <article class="spotlight-card">
+          <span class="spotlight-label">Active records</span>
+          <p class="spotlight-value"><%= records.length %></p>
+          <p class="meta-copy">Pattern movement record<%= records.length === 1 ? '' : 's' %> linked to your account.</p>
+        </article>
+
+        <article class="meta-card">
+          <span class="meta-label">Photos attached</span>
+          <p class="meta-copy"><%= photoCount %> record<%= photoCount === 1 ? '' : 's' %> include a photo for reference.</p>
+        </article>
+      </aside>
+    </section>
+
+    <section class="card-grid fade-up delay-2">
+      <article class="motor-card">
+        <div class="stack">
+          <span class="eyebrow">Pattern handover page</span>
+          <h2 class="section-title">Handover a pattern</h2>
+          <p class="section-copy">Search the pattern number, bring the saved pattern name automatically, add handover to, date, photo, and save the handover record.</p>
+          <div class="inline-actions">
+            <a href="/patterns/handover" class="button">Open Pattern Handover</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="motor-card">
+        <div class="stack">
+          <span class="eyebrow">Pattern receive page</span>
+          <h2 class="section-title">Receive a pattern</h2>
+          <p class="section-copy">Search the pattern number, bring the saved pattern name automatically, add receive from, date, photo, and save the receive record.</p>
+          <div class="inline-actions">
+            <a href="/patterns/receive" class="button secondary">Open Pattern Receive</a>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="stats-grid fade-up delay-3">
+      <article class="stat-card">
+        <span class="stat-label">Total records</span>
+        <p class="stat-value"><%= records.length %></p>
+        <p class="supporting-text">All saved pattern activity for your login.</p>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Pattern handover</span>
+        <p class="stat-value"><%= handoverCount %></p>
+        <p class="supporting-text">Entries where you handed over a pattern.</p>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Pattern receive</span>
+        <p class="stat-value"><%= receiveCount %></p>
+        <p class="supporting-text">Entries where you received a pattern.</p>
+      </article>
+    </section>
+
+    <section class="panel fade-up delay-3">
+      <div class="section-heading">
+        <div class="stack">
+          <h2 class="section-title">Pattern activity</h2>
+          <p class="section-copy">Latest handover and receive entries saved by you.</p>
+        </div>
+      </div>
+
+      <% if (!records.length) { %>
+        <div class="empty-state">
+          <h3>No pattern records yet</h3>
+          <p>Use Pattern Handover or Pattern Receive to create the first entry.</p>
+        </div>
+      <% } else { %>
+        <div class="card-grid">
+          <% records.forEach(record => { %>
+            <article class="motor-card">
+              <div class="motor-head">
+                <div class="stack">
+                  <h3 class="motor-name"><%= record.patternName %></h3>
+                  <p class="supporting-text">Pattern No: <%= record.patternNumber %></p>
+                </div>
+                <span class="status-pill"><%= record.type === 'handover' ? 'Handover' : 'Receive' %></span>
+              </div>
+
+              <div class="meta-grid">
+                <div class="meta-block">
+                  <span class="meta-label">Pattern number</span>
+                  <span class="meta-value"><%= record.patternNumber %></span>
+                </div>
+                <div class="meta-block">
+                  <span class="meta-label"><%= record.type === 'handover' ? 'Handover to' : 'Receive from' %></span>
+                  <span class="meta-value"><%= record.type === 'handover' ? record.handoverTo : record.receiveFrom %></span>
+                </div>
+                <div class="meta-block">
+                  <span class="meta-label">Date</span>
+                  <span class="meta-value"><%= record.recordDate.toDateString() %></span>
+                </div>
+              </div>
+
+              <div class="inline-actions">
+                <form action="/patterns/delete/<%= record._id %>" method="POST">
+                  <button type="submit" class="danger">Delete Record</button>
+                </form>
+              </div>
+
+              <% if (record.photoPath) { %>
+                <div class="photo-frame">
+                  <img src="/uploads/<%= record.photoPath %>" alt="Pattern photo for <%= record.patternName %>">
+                </div>
+              <% } %>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= type === 'handover' ? 'Pattern Handover' : 'Pattern Receive' %> | Mototek Pattern Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <% const isHandover = type === 'handover'; %>
+  <% const partyFieldName = isHandover ? 'handoverTo' : 'receiveFrom'; %>
+  <% const partyLabel = isHandover ? 'Handover To' : 'Receive From'; %>
+  <% const submitLabel = isHandover ? 'Save Pattern Handover' : 'Save Pattern Receive'; %>
+  <main class="page stack-xl">
+    <header class="topbar fade-up">
+      <div class="brand-lockup">
+        <div class="brand-mark">MP</div>
+        <div class="brand-copy">
+          <p class="brand-title">Mototek Pattern Management</p>
+          <p class="brand-subtitle"><%= isHandover ? 'Create a pattern handover entry.' : 'Create a pattern receive entry.' %></p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <a href="/patterns/dashboard" class="button secondary">Back to Dashboard</a>
+      </div>
+    </header>
+
+    <section class="form-shell">
+      <article class="auth-card form-aside fade-up delay-1">
+        <div class="stack-lg">
+          <span class="eyebrow"><%= isHandover ? 'Pattern handover' : 'Pattern receive' %></span>
+          <div class="stack">
+            <h1 class="page-title"><%= isHandover ? 'Save pattern handover details.' : 'Save pattern receive details.' %></h1>
+            <p class="page-subtitle">Search by pattern number and the saved pattern name will come automatically. If the pattern number is new, you can type the pattern name manually.</p>
+          </div>
+        </div>
+
+        <div class="checklist">
+          <div class="check-item">
+            <p class="check-title">Pattern number search</p>
+            <p class="check-copy">Start typing an existing pattern number to auto-fill the correct pattern name.</p>
+          </div>
+          <div class="check-item">
+            <p class="check-title">Photo support</p>
+            <p class="check-copy">Attach a photo to keep a visual record with the handover or receive entry.</p>
+          </div>
+        </div>
+      </article>
+
+      <section class="form-card fade-up delay-2">
+        <div class="form-intro">
+          <span class="eyebrow"><%= isHandover ? 'Handover form' : 'Receive form' %></span>
+          <h2 class="auth-title"><%= isHandover ? 'Pattern handover' : 'Pattern receive' %></h2>
+          <p class="page-subtitle">Complete the form below to save the pattern record in Mototek Pattern Management.</p>
+        </div>
+
+        <% if (error) { %>
+          <p class="error"><%= error %></p>
+        <% } %>
+
+        <form action="/patterns/<%= type %>" method="POST" enctype="multipart/form-data" class="stack">
+          <div class="form-grid">
+            <div class="field">
+              <label for="patternNumber">Pattern Number</label>
+              <input id="patternNumber" type="text" name="patternNumber" list="patternNumberList" placeholder="Search pattern number" value="<%= formData.patternNumber %>" autocomplete="off" required>
+              <datalist id="patternNumberList">
+                <% patternNumbers.forEach(patternNumber => { %>
+                  <option value="<%= patternNumber %>"></option>
+                <% }) %>
+              </datalist>
+            </div>
+
+            <div class="field">
+              <label for="patternName">Pattern Name</label>
+              <input id="patternName" type="text" name="patternName" placeholder="Pattern name will appear here" value="<%= formData.patternName %>" <%= formData.patternName ? 'readonly' : '' %> required>
+            </div>
+
+            <div class="field">
+              <label for="<%= partyFieldName %>"><%= partyLabel %></label>
+              <select id="<%= partyFieldName %>" name="<%= partyFieldName %>" required>
+                <% supervisorNames.forEach(name => { %>
+                  <option value="<%= name %>" <%= (isHandover ? formData.handoverTo : formData.receiveFrom) === name ? 'selected' : '' %>><%= name %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="recordDate">Date</label>
+              <input id="recordDate" type="date" name="recordDate" value="<%= formData.recordDate %>" required>
+            </div>
+
+            <div class="field full">
+              <label for="photo">Photo</label>
+              <input id="photo" type="file" name="photo" accept="image/*">
+              <p class="helper-text">Photo is optional. Supported files depend on the browser upload support.</p>
+            </div>
+          </div>
+
+          <p id="patternLookupStatus" class="helper-text">Search a saved pattern number to auto-fill the pattern name.</p>
+
+          <div class="inline-actions">
+            <button type="submit"><%= submitLabel %></button>
+            <a href="/patterns/dashboard" class="button secondary">Cancel</a>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const patternNumberInput = document.getElementById('patternNumber');
+    const patternNameInput = document.getElementById('patternName');
+    const lookupStatus = document.getElementById('patternLookupStatus');
+
+    let activeRequest = 0;
+    let lookupTimer = null;
+
+    function setPatternNameReadOnly(isReadOnly) {
+      patternNameInput.readOnly = isReadOnly;
+    }
+
+    function markPatternNameAsAutoFilled(patternNumber) {
+      patternNameInput.dataset.autoFilled = 'true';
+      patternNameInput.dataset.patternNumber = patternNumber;
+    }
+
+    function clearAutoFilledMarker() {
+      patternNameInput.dataset.autoFilled = 'false';
+      patternNameInput.dataset.patternNumber = '';
+    }
+
+    async function lookupPatternNumber() {
+      const patternNumber = patternNumberInput.value.trim();
+      const currentRequest = ++activeRequest;
+
+      if (!patternNumber) {
+        setPatternNameReadOnly(false);
+        patternNameInput.value = '';
+        clearAutoFilledMarker();
+        lookupStatus.textContent = 'Search a saved pattern number to auto-fill the pattern name.';
+        return;
+      }
+
+      lookupStatus.textContent = 'Searching pattern number...';
+
+      try {
+        const response = await fetch(`/patterns/search?patternNumber=${encodeURIComponent(patternNumber)}`);
+        const result = await response.json();
+
+        if (currentRequest !== activeRequest) {
+          return;
+        }
+
+        if (result.found) {
+          patternNameInput.value = result.patternName;
+          setPatternNameReadOnly(true);
+          markPatternNameAsAutoFilled(patternNumber);
+          lookupStatus.textContent = 'Pattern name loaded from saved records.';
+        } else {
+          if (patternNameInput.dataset.autoFilled === 'true') {
+            patternNameInput.value = '';
+          }
+
+          setPatternNameReadOnly(false);
+          clearAutoFilledMarker();
+          lookupStatus.textContent = 'No saved match found. Enter the pattern name manually.';
+        }
+      } catch (error) {
+        if (currentRequest !== activeRequest) {
+          return;
+        }
+
+        setPatternNameReadOnly(false);
+        clearAutoFilledMarker();
+        lookupStatus.textContent = 'Pattern lookup is not available right now. You can still enter the name manually.';
+      }
+    }
+
+    function queueLookup() {
+      window.clearTimeout(lookupTimer);
+      lookupTimer = window.setTimeout(lookupPatternNumber, 250);
+    }
+
+    clearAutoFilledMarker();
+    setPatternNameReadOnly(Boolean(patternNameInput.value.trim()));
+    if (patternNumberInput.value.trim()) {
+      lookupPatternNumber();
+    }
+
+    patternNumberInput.addEventListener('input', queueLookup);
+    patternNumberInput.addEventListener('change', lookupPatternNumber);
+    patternNumberInput.addEventListener('blur', lookupPatternNumber);
+  </script>
+</body>
+</html>

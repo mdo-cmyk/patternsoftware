@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Mototek Pattern Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="page stack-xl">
+    <header class="topbar fade-up">
+      <div class="brand-lockup">
+        <div class="brand-mark">MP</div>
+        <div class="brand-copy">
+          <p class="brand-title">Mototek Pattern Management</p>
+          <p class="brand-subtitle">Friendly recovery screen for unexpected errors.</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero-panel fade-up delay-1">
+      <div class="hero-copy">
+        <span class="eyebrow">Request issue</span>
+        <h1 class="page-title"><%= title %></h1>
+        <p class="page-subtitle"><%= message %></p>
+
+        <div class="inline-actions">
+          <a href="javascript:history.back()" class="button">Go Back</a>
+          <a href="/dashboard" class="button secondary">Dashboard</a>
+          <a href="/login" class="button secondary">Login</a>
+        </div>
+      </div>
+
+      <aside class="hero-side">
+        <article class="meta-card">
+          <span class="meta-label">What to do</span>
+          <p class="meta-copy">Check the entered data and try again. If the problem continues, reopen the page and repeat the action.</p>
+        </article>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

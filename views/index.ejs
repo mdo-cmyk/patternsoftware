@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mototek Pattern Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    }
+    
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      background: #f5f5f5;
+    }
+    
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(135deg, #1a3a3a 0%, #244848 100%);
+      color: white;
+      padding: 2rem;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .sidebar-brand-icon {
+      width: 40px;
+      height: 40px;
+      background: #4db8a8;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    
+    .sidebar-nav {
+      list-style: none;
+      margin: 2rem 0;
+      padding: 0;
+    }
+    
+    .sidebar-nav-item {
+      margin: 0.5rem 0;
+    }
+    
+    .sidebar-nav-button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    
+    .sidebar-nav-button:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateX(4px);
+    }
+    
+    .sidebar-nav-button.active {
+      background: #4db8a8;
+      font-weight: 600;
+    }
+    
+    .sidebar-footer {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .logout-btn {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+    
+    .page-section {
+      display: none;
+      animation: fadeIn 0.3s ease-in;
+    }
+    
+    .page-section.active {
+      display: block;
+    }
+
+    .inner-page {
+      display: none;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .inner-page.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a3a3a;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .page-subtitle {
+      color: #666;
+      font-size: 0.95rem;
+    }
+    
+    .login-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    
+    .login-card {
+      background: white;
+      padding: 3rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .login-brand {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #4db8a8;
+      margin-bottom: 1rem;
+    }
+    
+    .login-title {
+      font-size: 1.5rem;
+      color: #1a3a3a;
+      margin: 0;
+    }
+    
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: #1a3a3a;
+      font-size: 0.9rem;
+    }
+    
+    .form-input {
+      padding: 0.75rem 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #4db8a8;
+      box-shadow: 0 0 0 3px rgba(77, 184, 168, 0.1);
+    }
+    
+    .login-button {
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #4db8a8 0%, #3a9989 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .login-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(77, 184, 168, 0.3);
+    }
+    
+    .login-error {
+      background: #ffe0e0;
+      color: #d32f2f;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    
+    .login-error.show {
+      display: block;
+    }
+    
+    .form-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .field label {
+      font-weight: 600;
+      color: #1a3a3a;
+      font-size: 0.9rem;
+    }
+    
+    .field input, .field select {
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+    
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: #4db8a8;
+      box-shadow: 0 0 0 3px rgba(77, 184, 168, 0.1);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-left: 4px solid #4db8a8;
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: #999;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a3a3a;
+    }
+    
+    .records-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    
+    .record-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .record-info {
+      flex: 1;
+    }
+    
+    .record-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1a3a3a;
+      margin: 0;
+    }
+    
+    .record-details {
+      font-size: 0.85rem;
+      color: #666;
+      margin: 0.5rem 0 0 0;
+    }
+    
+    .record-type {
+      background: #4db8a8;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .record-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .pattern-image-preview {
+      width: 88px;
+      height: 88px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      background: #f5f5f5;
+      flex-shrink: 0;
+      cursor: zoom-in;
+    }
+
+    .pattern-image-placeholder {
+      width: 88px;
+      height: 88px;
+      border-radius: 10px;
+      border: 1px dashed #cfd8dc;
+      background: #f7faf9;
+      color: #78909c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.5rem;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+
+    .image-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(16, 33, 33, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      z-index: 1000;
+    }
+
+    .image-modal.open {
+      display: flex;
+    }
+
+    .image-modal-content {
+      position: relative;
+      max-width: min(92vw, 960px);
+      max-height: 90vh;
+      width: fit-content;
+    }
+
+    .image-modal img {
+      display: block;
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 14px;
+      background: white;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    }
+
+    .image-modal-close {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 999px;
+      background: white;
+      color: #1a3a3a;
+      font-size: 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    }
+
+    .image-modal-caption {
+      color: white;
+      text-align: center;
+      margin-top: 0.9rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #4db8a8 0%, #3a9989 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(77, 184, 168, 0.3);
+    }
+    
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .empty-state h3 {
+      color: #1a3a3a;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .empty-state p {
+      color: #999;
+      margin: 0;
+    }
+    
+    .user-info {
+      color: white;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .photo-preview {
+      max-width: 100%;
+      height: auto;
+      margin-top: 1rem;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Login Section -->
+    <div id="loginSection" class="page-section active">
+      <div class="login-section">
+        <div class="login-card">
+          <div class="login-header">
+            <div class="login-brand">MP</div>
+            <h1 class="login-title">Mototek Pattern Management</h1>
+          </div>
+          <form id="loginForm" class="login-form">
+            <div id="loginError" class="login-error"></div>
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" id="loginUsername" class="form-input" placeholder="Enter your username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="login-button">Sign In</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="page-section">
+      <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">MP</div>
+            <span>Mototek PM</span>
+          </div>
+          <div id="userGreeting" class="user-info"></div>
+          <ul class="sidebar-nav">
+            <li class="sidebar-nav-item" id="dashboardNav">
+              <button id="dashboardNavButton" class="sidebar-nav-button active" onclick="showPage('dashboard', this)">Dashboard</button>
+            </li>
+            <li class="sidebar-nav-item" id="handoverNav">
+              <button class="sidebar-nav-button" onclick="showPage('handover', this)">Pattern Handover</button>
+            </li>
+            <li class="sidebar-nav-item" id="receiveNav">
+              <button class="sidebar-nav-button" onclick="showPage('receive', this)">Pattern Received</button>
+            </li>
+            <li class="sidebar-nav-item" id="adminNav" style="display: none;">
+              <button class="sidebar-nav-button" onclick="showPage('users', this)">Manage Users</button>
+            </li>
+            <li class="sidebar-nav-item" id="patternAdminNav" style="display: none;">
+              <button class="sidebar-nav-button" onclick="showPage('patterns', this)">Add Pattern</button>
+            </li>
+            <li class="sidebar-nav-item" id="discardPatternNav" style="display: none;">
+              <button class="sidebar-nav-button" onclick="showPage('discardPatterns', this)">Discard Pattern</button>
+            </li>
+            <li class="sidebar-nav-item" id="viewPatternNav" style="display: none;">
+              <button class="sidebar-nav-button" onclick="showPage('viewPatterns', this)">View Patterns</button>
+            </li>
+            <li class="sidebar-nav-item" id="viewActivityNav" style="display: none;">
+              <button class="sidebar-nav-button" onclick="showPage('activity', this)">Activity Log</button>
+            </li>
+          </ul>
+          <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+          <!-- Dashboard Page -->
+          <div id="dashboardPage" class="inner-page active">
+            <div class="page-header">
+              <h1 class="page-title">Dashboard</h1>
+              <p class="page-subtitle">Manage pattern handover and receive records.</p>
+            </div>
+            <div class="stats-grid" id="statsGrid"></div>
+            <div class="form-container">
+              <h2 style="margin-top: 0;">Recent Records</h2>
+              <div id="recordsList"></div>
+            </div>
+          </div>
+
+          <!-- Pattern Handover Page -->
+          <div id="handoverPage" class="inner-page">
+            <div class="page-header">
+              <h1 class="page-title">Pattern Handover</h1>
+              <p class="page-subtitle">Record a pattern handover transaction.</p>
+            </div>
+            <div class="form-container">
+              <form id="handoverForm">
+                <div class="form-grid">
+                  <div class="field">
+                    <label>Pattern Number</label>
+                    <input type="text" id="handoverPatternNumber" list="patternNumberList" placeholder="Search pattern number" autocomplete="off" required>
+                    <datalist id="patternNumberList"></datalist>
+                  </div>
+                  <div class="field">
+                    <label>Pattern Name</label>
+                    <input type="text" id="handoverPatternName" placeholder="Will auto-fill" readonly>
+                  </div>
+                  <div class="field">
+                    <label>Handover To</label>
+                    <select id="handoverToName" required>
+                      <% defaultPartyNames.forEach(name => { %>
+                        <option value="<%= name %>" <%= name === handoverToDefault ? 'selected' : '' %>><%= name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>Date</label>
+                    <input type="date" id="handoverDate" required>
+                  </div>
+                  <div class="field full" style="grid-column: 1 / -1;">
+                    <label>Photo</label>
+                    <input type="file" id="handoverPhoto" accept="image/*">
+                    <small>Optional - Supported images only</small>
+                  </div>
+                </div>
+                <div id="handoverError" class="login-error"></div>
+                <div class="action-buttons">
+                  <button type="submit" class="btn btn-primary">Save Pattern Handover</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Pattern Received Page -->
+          <div id="receivePage" class="inner-page">
+            <div class="page-header">
+              <h1 class="page-title">Pattern Received</h1>
+              <p class="page-subtitle">Record a pattern received transaction.</p>
+            </div>
+            <div class="form-container">
+              <form id="receiveForm">
+                <div class="form-grid">
+                  <div class="field">
+                    <label>Pattern Number</label>
+                    <input type="text" id="receivePatternNumber" list="patternNumberList" placeholder="Search pattern number" autocomplete="off" required>
+                  </div>
+                  <div class="field">
+                    <label>Pattern Name</label>
+                    <input type="text" id="receivePatternName" placeholder="Will auto-fill" readonly>
+                  </div>
+                  <div class="field">
+                    <label>Received From</label>
+                    <select id="receiveFromName" required>
+                      <% defaultPartyNames.forEach(name => { %>
+                        <option value="<%= name %>" <%= name === receiveFromDefault ? 'selected' : '' %>><%= name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>Date</label>
+                    <input type="date" id="receiveDate" required>
+                  </div>
+                  <div class="field full" style="grid-column: 1 / -1;">
+                    <label>Photo</label>
+                    <input type="file" id="receivePhoto" accept="image/*">
+                    <small>Optional - Supported images only</small>
+                  </div>
+                </div>
+                <div id="receiveError" class="login-error"></div>
+                <div class="action-buttons">
+                  <button type="submit" class="btn btn-primary">Save Pattern Received</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Users Management Page -->
+          <div id="usersPage" class="inner-page">
+            <div class="page-header">
+              <h1 class="page-title">Manage Users</h1>
+              <p class="page-subtitle">Admin: Add and manage user accounts.</p>
+            </div>
+            <div class="form-container">
+              <h3>Add New User</h3>
+              <form id="addUserForm">
+                <div class="form-grid">
+                  <div class="field">
+                    <label>Username</label>
+                    <input type="text" id="newUsername" placeholder="Enter username" required>
+                  </div>
+                  <div class="field">
+                    <label>Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter password" required>
+                  </div>
+                </div>
+                <div class="field full" style="grid-column: 1 / -1;">
+                  <label>Pages allowed for this user</label>
+                  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                    <label style="display:flex; gap:0.5rem; align-items:center;"><input type="checkbox" name="allowedPages" value="dashboard" checked> Dashboard</label>
+                    <label style="display:flex; gap:0.5rem; align-items:center;"><input type="checkbox" name="allowedPages" value="handover" checked> Pattern Handover</label>
+                    <label style="display:flex; gap:0.5rem; align-items:center;"><input type="checkbox" name="allowedPages" value="receive" checked> Pattern Received</label>
+                    <label style="display:flex; gap:0.5rem; align-items:center;"><input type="checkbox" name="allowedPages" value="users"> Manage Users</label>
+                    <label style="display:flex; gap:0.5rem; align-items:center;"><input type="checkbox" name="allowedPages" value="patterns"> Add Pattern</label>
+                    <label style="display:flex; gap:0.5rem; align-items:center;"><input type="checkbox" name="allowedPages" value="discardPatterns"> Discard Pattern</label>
+                    <label style="display:flex; gap:0.5rem; align-items:center;"><input type="checkbox" name="allowedPages" value="viewPatterns"> View Patterns</label>
+                    <label style="display:flex; gap:0.5rem; align-items:center;"><input type="checkbox" name="allowedPages" value="activity"> Activity Log</label>
+                  </div>
+                  <small>Select 2-4 (or more) pages for this user.</small>
+                </div>
+                <div id="addUserError" class="login-error"></div>
+                <div class="action-buttons">
+                  <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+              </form>
+            </div>
+            <div class="form-container">
+              <h3>All Users & Records</h3>
+              <div id="allUsersList"></div>
+            </div>
+          </div>
+
+          <div id="patternsPage" class="inner-page">
+            <div class="page-header">
+              <h1 class="page-title">Add Pattern</h1>
+              <p class="page-subtitle">Admin: Add pattern numbers and names that the app should recognize.</p>
+            </div>
+            <div class="form-container">
+              <form id="addPatternForm">
+                <div class="form-grid">
+                  <div class="field">
+                    <label>Pattern Number</label>
+                    <input type="text" id="newPatternNumber" placeholder="Enter pattern number" required>
+                  </div>
+                  <div class="field">
+                    <label>Pattern Name</label>
+                    <input type="text" id="newPatternName" placeholder="Enter pattern name" required>
+                  </div>
+                </div>
+                <div class="field full" style="grid-column: 1 / -1;">
+                  <label>Pattern Image</label>
+                  <input type="file" id="newPatternImage" accept="image/*">
+                  <small>Optional - upload a pattern photo</small>
+                </div>
+                <div id="addPatternError" class="login-error"></div>
+                <div class="action-buttons">
+                  <button type="submit" class="btn btn-primary">Add Pattern</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div id="discardPatternsPage" class="inner-page">
+            <div class="page-header">
+              <h1 class="page-title">Discard Pattern</h1>
+              <p class="page-subtitle">Admin: Discard a pattern so it no longer appears in View Patterns.</p>
+            </div>
+            <div class="form-container">
+              <h3>Discard Pattern</h3>
+              <form id="discardPatternForm">
+                <div class="form-grid">
+                  <div class="field">
+                    <label>Pattern Number</label>
+                    <input type="text" id="discardPatternNumber" list="discardPatternNumberList" placeholder="Select pattern number" autocomplete="off" required>
+                    <datalist id="discardPatternNumberList"></datalist>
+                  </div>
+                </div>
+                <div id="discardPatternError" class="login-error"></div>
+                <div class="action-buttons">
+                  <button type="submit" class="btn btn-danger">Discard</button>
+                </div>
+              </form>
+            </div>
+            <div class="form-container">
+              <h3>Discarded Patterns</h3>
+              <div id="discardedPatternList"></div>
+            </div>
+          </div>
+
+          <div id="viewPatternsPage" class="inner-page">
+            <div class="page-header">
+              <h1 class="page-title">View Patterns</h1>
+              <p class="page-subtitle">Search and filter master patterns.</p>
+            </div>
+            <div class="form-container">
+              <h3>Search Master Patterns</h3>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Search by number or name</label>
+                  <input type="text" id="patternSearchQuery" placeholder="Type pattern number or name">
+                </div>
+                <div class="field">
+                  <label>User</label>
+                  <select id="patternUserFilter">
+                    <option value="">All users</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-container">
+              <h3>Existing Patterns</h3>
+              <div id="patternList"></div>
+            </div>
+          </div>
+
+          <div id="activityPage" class="inner-page">
+            <div class="page-header">
+              <h1 class="page-title">Activity Log</h1>
+              <p class="page-subtitle">Filter recent handover and received records by pattern number.</p>
+            </div>
+            <div class="form-container">
+              <div class="form-grid">
+                <div class="field">
+                  <label>User</label>
+                  <select id="activityUserFilter">
+                    <option value="">All users</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Pattern Number</label>
+                  <input type="text" id="activityPatternNumberFilter" list="activityPatternNumberList" placeholder="Type or select pattern number" autocomplete="off">
+                  <datalist id="activityPatternNumberList"></datalist>
+                </div>
+              </div>
+              <div class="action-buttons">
+                <button type="button" class="btn btn-primary" onclick="exportPatternRecords('xlsx')">Export Excel</button>
+                <button type="button" class="btn btn-primary" onclick="exportPatternRecords('pdf')">Export PDF</button>
+              </div>
+            </div>
+            <div class="form-container">
+              <h3>Pattern Activity Log</h3>
+              <div id="patternRecordsList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="imageModal" class="image-modal" aria-hidden="true">
+    <div class="image-modal-content">
+      <button type="button" id="imageModalClose" class="image-modal-close" aria-label="Close image preview">&times;</button>
+      <img id="imageModalPreview" src="" alt="">
+      <div id="imageModalCaption" class="image-modal-caption"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let currentRole = null;
+    let currentAllowedPages = null;
+    let availablePatternNumbers = [];
+    let availableActivityPatternNumbers = [];
+    const defaultPartyNames = <%- JSON.stringify(defaultPartyNames) %>;
+    const handoverToDefault = <%- JSON.stringify(handoverToDefault) %>;
+    const receiveFromDefault = <%- JSON.stringify(receiveFromDefault) %>;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setDefaultDates();
+      setDefaultPartySelections(true);
+
+      // Restore session when refreshing
+      fetch('/api/session', { credentials: 'same-origin' })
+        .then(async (response) => {
+          if (!response.ok) {
+            return;
+          }
+          const data = await response.json();
+          currentUser = data.username;
+          currentRole = data.role;
+          currentAllowedPages = data.allowedPages || null;
+          showDashboard();
+        })
+        .catch(() => {
+          // ignore if not logged in
+        });
+
+      // Login Form
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok) {
+            currentUser = data.username;
+            currentRole = data.role;
+            currentAllowedPages = data.allowedPages || null;
+            showDashboard();
+            errorDiv.classList.remove('show');
+          } else {
+            errorDiv.textContent = data.error || 'Login failed';
+            errorDiv.classList.add('show');
+          }
+        } catch (error) {
+          errorDiv.textContent = 'Connection error. Please try again.';
+          errorDiv.classList.add('show');
+        }
+      });
+
+      // Handover Form
+      document.getElementById('handoverForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('patternNumber', document.getElementById('handoverPatternNumber').value);
+        formData.append('patternName', document.getElementById('handoverPatternName').value);
+        formData.append('handoverTo', document.getElementById('handoverToName').value);
+        formData.append('recordDate', document.getElementById('handoverDate').value);
+        if (document.getElementById('handoverPhoto').files[0]) {
+          formData.append('photo', document.getElementById('handoverPhoto').files[0]);
+        }
+        
+        try {
+          const response = await fetch('/api/handover', {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: formData
+          });
+          
+          const data = await response.json();
+          const errorDiv = document.getElementById('handoverError');
+          
+          if (response.ok) {
+            errorDiv.classList.remove('show');
+            document.getElementById('handoverForm').reset();
+            resetTransactionDefaults('handover');
+            showPage('dashboard');
+            loadDashboard();
+          } else {
+            errorDiv.textContent = data.error || 'Error saving handover';
+            errorDiv.classList.add('show');
+          }
+        } catch (error) {
+          document.getElementById('handoverError').textContent = 'Error saving record';
+          document.getElementById('handoverError').classList.add('show');
+        }
+      });
+
+      // Receive Form
+      document.getElementById('receiveForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('patternNumber', document.getElementById('receivePatternNumber').value);
+        formData.append('patternName', document.getElementById('receivePatternName').value);
+        formData.append('receiveFrom', document.getElementById('receiveFromName').value);
+        formData.append('recordDate', document.getElementById('receiveDate').value);
+        if (document.getElementById('receivePhoto').files[0]) {
+          formData.append('photo', document.getElementById('receivePhoto').files[0]);
+        }
+        
+        try {
+          const response = await fetch('/api/receive', {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: formData
+          });
+          
+          const data = await response.json();
+          const errorDiv = document.getElementById('receiveError');
+          
+          if (response.ok) {
+            errorDiv.classList.remove('show');
+            document.getElementById('receiveForm').reset();
+            resetTransactionDefaults('receive');
+            showPage('dashboard');
+            loadDashboard();
+          } else {
+            errorDiv.textContent = data.error || 'Error saving receive';
+            errorDiv.classList.add('show');
+          }
+        } catch (error) {
+          document.getElementById('receiveError').textContent = 'Error saving record';
+          document.getElementById('receiveError').classList.add('show');
+        }
+      });
+
+      // Admin: Add User Form
+      document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('newUsername').value;
+        const password = document.getElementById('newPassword').value;
+        const allowedPages = Array.from(document.querySelectorAll('#addUserForm input[name="allowedPages"]:checked'))
+          .map((input) => input.value);
+        const errorDiv = document.getElementById('addUserError');
+        
+        try {
+          const response = await fetch('/api/add-user', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, allowedPages })
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok) {
+            errorDiv.classList.remove('show');
+            document.getElementById('addUserForm').reset();
+            loadUsersList();
+            loadPatternUserFilter();
+            loadPartyUsers();
+          } else {
+            errorDiv.textContent = data.error || 'Error creating user';
+            errorDiv.classList.add('show');
+          }
+        } catch (error) {
+          errorDiv.textContent = 'Error creating user';
+          errorDiv.classList.add('show');
+        }
+      });
+
+      document.getElementById('addPatternForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('patternNumber', document.getElementById('newPatternNumber').value);
+        formData.append('patternName', document.getElementById('newPatternName').value);
+        const fileInput = document.getElementById('newPatternImage');
+        if (fileInput.files[0]) {
+          formData.append('patternImage', fileInput.files[0]);
+        }
+        const errorDiv = document.getElementById('addPatternError');
+
+        try {
+          const response = await fetch('/api/add-pattern', {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: formData
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            errorDiv.classList.remove('show');
+            document.getElementById('addPatternForm').reset();
+            loadPatternsList();
+            loadPatternNumbers();
+            loadPatternActivity();
+          } else {
+            errorDiv.textContent = data.error || 'Error adding pattern';
+            errorDiv.classList.add('show');
+          }
+        } catch (error) {
+          errorDiv.textContent = 'Error adding pattern';
+          errorDiv.classList.add('show');
+        }
+      });
+
+      // Pattern Search
+      document.getElementById('handoverPatternNumber').addEventListener('change', () => searchPattern('handover'));
+      document.getElementById('receivePatternNumber').addEventListener('change', () => searchPattern('receive'));
+      document.getElementById('patternSearchQuery').addEventListener('input', () => {
+        loadPatternsList();
+      });
+      document.getElementById('patternUserFilter').addEventListener('change', () => {
+        loadPatternsList();
+      });
+      const activityPatternNumberFilter = document.getElementById('activityPatternNumberFilter');
+      const activityUserFilter = document.getElementById('activityUserFilter');
+      activityPatternNumberFilter.addEventListener('change', () => {
+        loadPatternActivity();
+      });
+      activityPatternNumberFilter.addEventListener('input', () => {
+        loadPatternActivity();
+      });
+      activityUserFilter.addEventListener('change', () => {
+        loadPatternActivity();
+      });
+
+      document.getElementById('patternList').addEventListener('click', (event) => {
+        const image = event.target.closest('.pattern-image-preview');
+        if (!image) {
+          return;
+        }
+        openImageModal(image.getAttribute('src'), image.getAttribute('alt'));
+      });
+
+      document.getElementById('discardPatternForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await discardSelectedPattern();
+      });
+
+      document.getElementById('imageModal').addEventListener('click', (event) => {
+        if (event.target.id === 'imageModal' || event.target.id === 'imageModalClose') {
+          closeImageModal();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeImageModal();
+        }
+      });
+    });
+
+
+    function showPage(page, element) {
+      if (!hasPageAccess(page)) {
+        alert('You do not have permission to open this page.');
+        return;
+      }
+      document.querySelectorAll('.inner-page').forEach(el => el.classList.remove('active'));
+      document.getElementById(page + 'Page').classList.add('active');
+      document.querySelectorAll('.sidebar-nav-button').forEach(btn => btn.classList.remove('active'));
+      if (element) {
+        element.classList.add('active');
+      }
+      
+      if (page === 'dashboard') {
+        loadDashboard();
+      } else if (page === 'handover' || page === 'receive') {
+        resetTransactionDefaults(page);
+      }
+    }
+
+    function getAllowedPages() {
+      if (currentRole === 'admin') {
+        return ['dashboard', 'handover', 'receive', 'users', 'patterns', 'discardPatterns', 'viewPatterns', 'activity'];
+      }
+      if (Array.isArray(currentAllowedPages) && currentAllowedPages.length) {
+        return currentAllowedPages;
+      }
+      return ['dashboard', 'handover', 'receive'];
+    }
+
+    function hasPageAccess(page) {
+      return getAllowedPages().includes(page);
+    }
+
+    function setNavigationVisibility() {
+      const allowed = new Set(getAllowedPages());
+      const visibilityMap = [
+        ['dashboardNav', 'dashboard'],
+        ['handoverNav', 'handover'],
+        ['receiveNav', 'receive'],
+        ['adminNav', 'users'],
+        ['patternAdminNav', 'patterns'],
+        ['discardPatternNav', 'discardPatterns'],
+        ['viewPatternNav', 'viewPatterns'],
+        ['viewActivityNav', 'activity']
+      ];
+
+      visibilityMap.forEach(([elementId, page]) => {
+        const el = document.getElementById(elementId);
+        if (el) {
+          el.style.display = allowed.has(page) ? 'block' : 'none';
+        }
+      });
+    }
+
+    function resetDashboardView() {
+      showPage('dashboard', document.getElementById('dashboardNavButton'));
+    }
+
+    function showDashboard() {
+      document.getElementById('loginSection').classList.remove('active');
+      document.getElementById('dashboardSection').classList.add('active');
+      document.getElementById('userGreeting').textContent = `Welcome, ${currentUser}`;
+      setNavigationVisibility();
+      resetDashboardView();
+      loadPatternNumbers();
+      loadPartyUsers();
+    }
+
+    function todayForInput() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function setDefaultDates() {
+      document.getElementById('handoverDate').value = todayForInput();
+      document.getElementById('receiveDate').value = todayForInput();
+    }
+
+    function mergePartyNames(...nameGroups) {
+      const seen = new Set();
+
+      return nameGroups
+        .flat()
+        .map(value => String(value || '').trim())
+        .filter(Boolean)
+        .filter((value) => {
+          const key = value.toLowerCase();
+          if (seen.has(key)) {
+            return false;
+          }
+          seen.add(key);
+          return true;
+        });
+    }
+
+    function hasOption(select, value) {
+      return Array.from(select.options).some(option => option.value === value);
+    }
+
+    function setSelectToDefault(selectId, defaultValue) {
+      const select = document.getElementById(selectId);
+      if (select && hasOption(select, defaultValue)) {
+        select.value = defaultValue;
+      }
+    }
+
+    function setSelectOptions(selectId, names, defaultValue) {
+      const select = document.getElementById(selectId);
+      const currentValue = select.value;
+      const partyNames = mergePartyNames(defaultPartyNames, names);
+
+      select.replaceChildren(...partyNames.map(name => new Option(name, name)));
+      select.value = hasOption(select, currentValue)
+        ? currentValue
+        : (hasOption(select, defaultValue) ? defaultValue : partyNames[0] || '');
+    }
+
+    function setDefaultPartySelections(force = false) {
+      const handoverSelect = document.getElementById('handoverToName');
+      const receiveSelect = document.getElementById('receiveFromName');
+
+      if (force || !handoverSelect.value) {
+        setSelectToDefault('handoverToName', handoverToDefault);
+      }
+      if (force || !receiveSelect.value) {
+        setSelectToDefault('receiveFromName', receiveFromDefault);
+      }
+    }
+
+    function resetTransactionDefaults(type) {
+      if (type === 'handover') {
+        document.getElementById('handoverDate').value = todayForInput();
+        setSelectToDefault('handoverToName', handoverToDefault);
+      }
+      if (type === 'receive') {
+        document.getElementById('receiveDate').value = todayForInput();
+        setSelectToDefault('receiveFromName', receiveFromDefault);
+      }
+    }
+
+    async function loadPartyUsers() {
+      let users = defaultPartyNames;
+
+      try {
+        const response = await fetch('/api/supervisors', { credentials: 'same-origin' });
+        const result = await response.json();
+        if (response.ok && Array.isArray(result)) {
+          users = result;
+        }
+      } catch (error) {
+        console.error('Error loading suppliers:', error);
+      }
+
+      setSelectOptions('handoverToName', users, handoverToDefault);
+      setSelectOptions('receiveFromName', users, receiveFromDefault);
+    }
+
+    async function loadPatternNumbers() {
+      try {
+        const response = await fetch('/api/pattern-numbers', { credentials: 'same-origin' });
+        const numbers = await response.json();
+        availablePatternNumbers = Array.isArray(numbers) ? numbers : [];
+        const datalist = document.getElementById('patternNumberList');
+        const optionsHtml = availablePatternNumbers.map(num => `<option value="${num}"></option>`).join('');
+        datalist.innerHTML = optionsHtml;
+        document.getElementById('activityPatternNumberList').innerHTML = optionsHtml;
+      } catch (error) {
+        console.error('Error loading pattern numbers:', error);
+      }
+    }
+
+    async function loadMasterPatternNumbersForDiscard() {
+      try {
+        const response = await fetch('/api/master-pattern-numbers', { credentials: 'same-origin' });
+        const numbers = await response.json().catch(() => []);
+        if (!response.ok) {
+          throw new Error(numbers?.error || 'Unable to load master pattern numbers');
+        }
+        document.getElementById('discardPatternNumberList').innerHTML = (Array.isArray(numbers) ? numbers : [])
+          .map(num => `<option value="${num}"></option>`)
+          .join('');
+      } catch (error) {
+        document.getElementById('discardPatternNumberList').innerHTML = '';
+        console.error('Error loading master pattern numbers:', error);
+      }
+    }
+
+    async function loadActivityPatternNumbers() {
+      try {
+        const response = await fetch('/api/activity-pattern-numbers', { credentials: 'same-origin' });
+        const numbers = await response.json();
+        availableActivityPatternNumbers = Array.isArray(numbers) ? numbers : [];
+        document.getElementById('activityPatternNumberList').innerHTML = availableActivityPatternNumbers
+          .map(num => `<option value="${num}"></option>`)
+          .join('');
+      } catch (error) {
+        console.error('Error loading activity pattern numbers:', error);
+      }
+    }
+
+    async function loadDashboard() {
+      try {
+        const response = await fetch('/api/dashboard', { credentials: 'same-origin' });
+        const data = await response.json();
+        
+        const statsHtml = `
+          <div class="stat-card">
+            <div class="stat-label">Total Records</div>
+            <div class="stat-value">${data.totalRecords}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Handovers</div>
+            <div class="stat-value">${data.handovers}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Received</div>
+            <div class="stat-value">${data.receives}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Photos</div>
+            <div class="stat-value">${data.photos}</div>
+          </div>
+        `;
+        document.getElementById('statsGrid').innerHTML = statsHtml;
+        
+        let recordsHtml = '';
+        if (data.records.length === 0) {
+          recordsHtml = '<div class="empty-state"><h3>No records yet</h3><p>Create your first pattern handover or receive record.</p></div>';
+        } else {
+          recordsHtml = data.records.map(record => `
+            <div class="record-card">
+              <div class="record-info">
+                <p class="record-name">${record.patternName}</p>
+                <p class="record-details">
+                  Pattern: ${record.patternNumber} | 
+                  ${record.type === 'handover' ? 'Handed to: ' + record.handoverTo : 'Received from: ' + record.receiveFrom} | 
+                  Date: ${new Date(record.recordDate).toDateString()}
+                </p>
+              </div>
+              <div class="record-actions">
+                <span class="record-type">${record.type === 'handover' ? 'Handover' : 'Received'}</span>
+                <button class="btn btn-danger" onclick="deleteRecord('${record._id}')">Delete</button>
+              </div>
+            </div>
+          `).join('');
+        }
+        document.getElementById('recordsList').innerHTML = recordsHtml;
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+      }
+    }
+
+    async function searchPattern(type) {
+      const fieldId = type === 'handover' ? 'handoverPatternNumber' : 'receivePatternNumber';
+      const patternNumber = document.getElementById(fieldId).value;
+      const nameFieldId = type === 'handover' ? 'handoverPatternName' : 'receivePatternName';
+      
+      try {
+        const response = await fetch(`/api/search-pattern?patternNumber=${encodeURIComponent(patternNumber)}`, { credentials: 'same-origin' });
+        const data = await response.json();
+        
+        const nameField = document.getElementById(nameFieldId);
+        if (data.found) {
+          nameField.value = data.patternName;
+        } else {
+          nameField.value = '';
+        }
+      } catch (error) {
+        console.error('Error searching pattern:', error);
+      }
+    }
+
+    async function deleteRecord(id) {
+      if (confirm('Are you sure you want to delete this record?')) {
+        try {
+          const response = await fetch(`/api/delete/${id}`, { method: 'POST', credentials: 'same-origin' });
+          if (response.ok) {
+            loadDashboard();
+          }
+        } catch (error) {
+          console.error('Error deleting record:', error);
+        }
+      }
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to sign out?')) {
+        fetch('/api/logout', { credentials: 'same-origin' }).then(() => {
+          currentUser = null;
+          currentRole = null;
+          currentAllowedPages = null;
+          setNavigationVisibility();
+          resetDashboardView();
+          document.getElementById('userGreeting').textContent = '';
+          document.getElementById('dashboardSection').classList.remove('active');
+          document.getElementById('loginSection').classList.add('active');
+          document.getElementById('loginForm').reset();
+        });
+      }
+    }
+
+    async function loadUsersList() {
+      try {
+        const response = await fetch('/api/users-list', { credentials: 'same-origin' });
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to load users');
+        }
+        const users = result;
+        
+        let usersHtml = '';
+        
+        if (users.length === 0) {
+          usersHtml = '<div class="empty-state"><h3>No users found</h3></div>';
+        } else {
+          usersHtml = users.map(user => `
+            <div class="record-card">
+              <div class="record-info">
+                <p class="record-name">${user.username}</p>
+                <p class="record-details">
+                  Role: ${user.role || 'user'} |
+                  Pages: ${Array.isArray(user.allowedPages) ? user.allowedPages.join(', ') : '(default)'} |
+                  Total records: ${user.recordCount}
+                </p>
+              </div>
+              <button class="btn btn-danger" onclick="deleteUser('${user._id}')">Delete User</button>
+            </div>
+          `).join('');
+        }
+        
+        document.getElementById('allUsersList').innerHTML = usersHtml;
+      } catch (error) {
+        document.getElementById('allUsersList').innerHTML = '<div class="empty-state"><h3>Unable to load users</h3></div>';
+        console.error('Error loading users:', error);
+      }
+    }
+
+    async function loadPatternUserFilter() {
+      try {
+        const response = await fetch('/api/users-list', { credentials: 'same-origin' });
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to load users');
+        }
+
+        const select = document.getElementById('patternUserFilter');
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">All users</option>' + result
+          .map(user => `<option value="${user._id}">${user.username}${user.role === 'admin' ? ' (admin)' : ''}</option>`)
+          .join('');
+
+        if (Array.from(select.options).some(option => option.value === currentValue)) {
+          select.value = currentValue;
+        }
+      } catch (error) {
+        console.error('Error loading pattern user filter:', error);
+      }
+    }
+
+    async function deleteUser(id) {
+      if (confirm('Are you sure you want to delete this user and all their records?')) {
+        try {
+          const response = await fetch(`/api/delete-user/${id}`, { method: 'POST', credentials: 'same-origin' });
+          if (response.ok) {
+            loadUsersList();
+            loadPatternUserFilter();
+            loadPartyUsers();
+          }
+        } catch (error) {
+          console.error('Error deleting user:', error);
+        }
+      }
+    }
+
+    async function loadPatternsList() {
+      try {
+        const search = document.getElementById('patternSearchQuery').value.trim();
+        const userId = document.getElementById('patternUserFilter').value;
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (userId) params.set('userId', userId);
+        const queryString = params.toString();
+        const response = await fetch(queryString ? `/api/patterns-list?${queryString}` : '/api/patterns-list', { credentials: 'same-origin' });
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to load patterns');
+        }
+        const patterns = result;
+        let listHtml = '';
+        if (patterns.length === 0) {
+          listHtml = '<div class="empty-state"><h3>No patterns found</h3></div>';
+        } else {
+          listHtml = patterns.map(pattern => `
+            <div class="record-card">
+              <div class="record-info">
+                <p class="record-name">${pattern.patternNumber}</p>
+                <p class="record-details">
+                  ${pattern.patternName}
+                  ${pattern.latestReceive
+                    ? ` | Received From: ${pattern.latestReceive.receiveFrom || '-'} (Added by: ${pattern.latestReceive.addedBy || '-'})`
+                    : ''}
+                  ${pattern.latestHandover
+                    ? ` | Handover To: ${pattern.latestHandover.handoverTo || '-'} (Added by: ${pattern.latestHandover.addedBy || '-'})`
+                    : ''}
+                </p>
+              </div>
+              <div class="record-actions">
+                ${pattern.patternImagePath
+                  ? `<img class="pattern-image-preview" src="/uploads/${pattern.patternImagePath}" alt="Pattern image for ${pattern.patternName}">`
+                  : '<div class="pattern-image-placeholder">No Image</div>'}
+                <button class="btn btn-danger" onclick="deletePattern('${pattern._id}')">Remove Pattern</button>
+              </div>
+            </div>
+          `).join('');
+        }
+        document.getElementById('patternList').innerHTML = listHtml;
+      } catch (error) {
+        document.getElementById('patternList').innerHTML = '<div class="empty-state"><h3>Unable to load patterns</h3></div>';
+        console.error('Error loading patterns:', error);
+      }
+    }
+
+    async function loadDiscardedPatternsList() {
+      try {
+        const search = document.getElementById('patternSearchQuery').value.trim();
+        const url = '/api/discarded-patterns-list' + (search ? `?search=${encodeURIComponent(search)}` : '');
+        const response = await fetch(url, { credentials: 'same-origin' });
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error(result?.error || 'Unable to load discarded patterns');
+        }
+        const patterns = Array.isArray(result) ? result : [];
+        let listHtml = '';
+        if (patterns.length === 0) {
+          listHtml = '<div class="empty-state"><h3>No discarded patterns</h3></div>';
+        } else {
+          listHtml = patterns.map(pattern => `
+            <div class="record-card">
+              <div class="record-info">
+                <p class="record-name">${pattern.patternNumber}</p>
+                <p class="record-details">${pattern.patternName}${pattern.discardedAt ? ` | Discarded: ${new Date(pattern.discardedAt).toDateString()}` : ''}</p>
+              </div>
+              <div class="record-actions">
+                ${pattern.patternImagePath
+                  ? `<img class="pattern-image-preview" src="/uploads/${pattern.patternImagePath}" alt="Pattern image for ${pattern.patternName}">`
+                  : '<div class="pattern-image-placeholder">No Image</div>'}
+                <button class="btn btn-primary" onclick="restorePattern('${pattern.patternNumber}')">Add Again</button>
+              </div>
+            </div>
+          `).join('');
+        }
+        document.getElementById('discardedPatternList').innerHTML = listHtml;
+      } catch (error) {
+        document.getElementById('discardedPatternList').innerHTML = '<div class="empty-state"><h3>Unable to load discarded patterns</h3></div>';
+        console.error('Error loading discarded patterns:', error);
+      }
+    }
+
+    async function restorePattern(patternNumber) {
+      const value = (patternNumber || '').trim();
+      if (!value) {
+        return;
+      }
+
+      if (!confirm(`Add pattern ${value} again? It will be removed from Discarded Patterns and shown in View Patterns.`)) {
+        return;
+      }
+
+      const errorDiv = document.getElementById('discardPatternError');
+
+      try {
+        const response = await fetch('/api/restore-pattern', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ patternNumber: value })
+        });
+
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error(result?.error || 'Unable to restore pattern');
+        }
+
+        errorDiv.classList.remove('show');
+        await loadDiscardedPatternsList();
+        await loadPatternsList();
+        await loadPatternNumbers();
+        await loadMasterPatternNumbersForDiscard();
+      } catch (error) {
+        errorDiv.textContent = error.message || 'Unable to restore pattern';
+        errorDiv.classList.add('show');
+        console.error('Error restoring pattern:', error);
+      }
+    }
+
+    async function discardSelectedPattern() {
+      const patternNumber = document.getElementById('discardPatternNumber').value.trim();
+      const errorDiv = document.getElementById('discardPatternError');
+
+      if (!patternNumber) {
+        errorDiv.textContent = 'Please select a pattern number.';
+        errorDiv.classList.add('show');
+        return;
+      }
+
+      if (!confirm(`Discard pattern ${patternNumber}? It will be removed from View Patterns and shown in Discarded Patterns.`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/discard-pattern', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ patternNumber })
+        });
+
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error(result?.error || 'Unable to discard pattern');
+        }
+
+        errorDiv.classList.remove('show');
+        document.getElementById('discardPatternForm').reset();
+        await loadPatternsList();
+        await loadDiscardedPatternsList();
+        await loadPatternNumbers();
+        await loadMasterPatternNumbersForDiscard();
+      } catch (error) {
+        errorDiv.textContent = error.message || 'Unable to discard pattern';
+        errorDiv.classList.add('show');
+        console.error('Error discarding pattern:', error);
+      }
+    }
+
+    async function deletePattern(id) {
+      if (confirm('Are you sure you want to remove this pattern?')) {
+        try {
+          const response = await fetch(`/api/delete-pattern/${id}`, { method: 'POST', credentials: 'same-origin' });
+          const result = await response.json().catch(() => null);
+          if (!response.ok) {
+            throw new Error(result?.error || 'Unable to delete pattern');
+          }
+          loadPatternsList();
+          loadPatternNumbers();
+          loadActivityPatternNumbers();
+          loadPatternUserFilter();
+        } catch (error) {
+          alert(error.message || 'Unable to delete pattern');
+          console.error('Error deleting pattern:', error);
+        }
+      }
+    }
+
+    async function loadPatternActivity() {
+      try {
+        const patternNumber = document.getElementById('activityPatternNumberFilter').value.trim();
+        const userId = document.getElementById('activityUserFilter').value;
+        const params = new URLSearchParams();
+        if (patternNumber) params.set('patternNumber', patternNumber);
+        if (userId) params.set('userId', userId);
+        const queryString = params.toString();
+        const response = await fetch(queryString ? `/api/pattern-records?${queryString}` : '/api/pattern-records', { credentials: 'same-origin' });
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          const message = result?.error || `Failed to load records: ${response.status}`;
+          throw new Error(message);
+        }
+        const records = result || [];
+        let listHtml = '';
+
+        if (records.length === 0) {
+          listHtml = '<div class="empty-state"><h3>No pattern activity found</h3><p>Try a different pattern number.</p></div>';
+        } else {
+          listHtml = records.map(record => `
+            <div class="record-card">
+              <div class="record-info">
+                <p class="record-name">${record.patternName}</p>
+                <p class="record-details">
+                  Pattern: ${record.patternNumber} | 
+                  ${record.type === 'handover' ? 'Handed to: ' + record.handoverTo : 'Received from: ' + record.receiveFrom} | 
+                  Date: ${new Date(record.recordDate).toDateString()} |
+                  Added by: ${record.userId && record.userId.username ? record.userId.username : 'Unknown user'}
+                </p>
+              </div>
+              <span class="record-type">${record.type === 'handover' ? 'Handover' : 'Received'}</span>
+            </div>
+          `).join('');
+        }
+
+        document.getElementById('patternRecordsList').innerHTML = listHtml;
+      } catch (error) {
+        document.getElementById('patternRecordsList').innerHTML = '<div class="empty-state"><h3>Unable to load pattern activity</h3></div>';
+        console.error('Error loading pattern activity:', error);
+      }
+    }
+
+    async function loadActivityUserFilter() {
+      const select = document.getElementById('activityUserFilter');
+      const currentValue = select.value;
+      try {
+        const response = await fetch('/api/users-list', { credentials: 'same-origin' });
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error(result?.error || 'Unable to load users');
+        }
+        select.innerHTML = '<option value="">All users</option>' + (Array.isArray(result) ? result : [])
+          .map(user => `<option value="${user._id}">${user.username}${user.role === 'admin' ? ' (admin)' : ''}</option>`)
+          .join('');
+
+        if (Array.from(select.options).some(option => option.value === currentValue)) {
+          select.value = currentValue;
+        }
+      } catch (error) {
+        select.innerHTML = '<option value="">All users</option>';
+      }
+    }
+
+    function exportPatternRecords(format) {
+      const patternNumber = document.getElementById('activityPatternNumberFilter').value.trim();
+      const userId = document.getElementById('activityUserFilter').value;
+      const params = new URLSearchParams();
+      if (patternNumber) params.set('patternNumber', patternNumber);
+      if (userId) params.set('userId', userId);
+      const url = format === 'pdf'
+        ? `/api/export/pattern-records.pdf?${params.toString()}`
+        : `/api/export/pattern-records.xlsx?${params.toString()}`;
+      window.open(url, '_blank');
+    }
+
+    function openImageModal(src, altText) {
+      const modal = document.getElementById('imageModal');
+      document.getElementById('imageModalPreview').src = src;
+      document.getElementById('imageModalPreview').alt = altText || 'Pattern image preview';
+      document.getElementById('imageModalCaption').textContent = altText || '';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeImageModal() {
+      const modal = document.getElementById('imageModal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.getElementById('imageModalPreview').src = '';
+      document.getElementById('imageModalCaption').textContent = '';
+      document.body.style.overflow = '';
+    }
+
+    const originalShowPage = showPage;
+    showPage = function(page, element) {
+      originalShowPage(page, element);
+      if (page === 'users') {
+        loadUsersList();
+      }
+      if (page === 'patterns') {
+        // No extra data needed for Add Pattern now
+      }
+      if (page === 'viewPatterns') {
+        loadPatternUserFilter();
+        loadPatternsList();
+      }
+      if (page === 'discardPatterns') {
+        loadDiscardedPatternsList();
+        loadMasterPatternNumbersForDiscard();
+      }
+      if (page === 'activity') {
+        loadActivityPatternNumbers();
+        loadActivityUserFilter();
+        loadPatternActivity();
+      }
+    };
+  </script>
+</body>
+</html>

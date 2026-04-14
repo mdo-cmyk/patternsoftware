@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add User | Mototek Pattern Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <% const errorMessage = typeof error !== 'undefined' ? error : null; %>
+  <% const userFormData = typeof formData !== 'undefined' ? formData : { username: '' }; %>
+  <main class="page stack-xl">
+    <header class="topbar fade-up">
+      <div class="brand-lockup">
+        <div class="brand-mark">MP</div>
+        <div class="brand-copy">
+          <p class="brand-title">Mototek Pattern Management</p>
+          <p class="brand-subtitle">Create a new staff account.</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <a href="/users" class="button secondary">Back to Dashboard</a>
+      </div>
+    </header>
+
+    <section class="form-shell">
+      <article class="auth-card form-aside fade-up delay-1">
+        <div class="stack-lg">
+          <span class="eyebrow">User setup</span>
+          <div class="stack">
+            <h1 class="page-title">Create a user account.</h1>
+            <p class="page-subtitle">Add a username and password so the user can sign in and save pattern handover and receive entries.</p>
+          </div>
+        </div>
+
+        <div class="checklist">
+          <div class="check-item">
+            <p class="check-title">Use a clear username</p>
+            <p class="check-copy">Short names are easier to manage in the dashboard.</p>
+          </div>
+          <div class="check-item">
+            <p class="check-title">Ready for assignment</p>
+            <p class="check-copy">The new account can start saving pattern records immediately.</p>
+          </div>
+        </div>
+      </article>
+
+      <section class="form-card fade-up delay-2">
+        <div class="form-intro">
+          <span class="eyebrow">New user</span>
+          <h2 class="auth-title">User details</h2>
+          <p class="page-subtitle">Complete the form below to create the account.</p>
+        </div>
+
+        <% if (errorMessage) { %>
+          <p class="error"><%= errorMessage %></p>
+        <% } %>
+
+        <form action="/users/add" method="POST" class="stack">
+          <div class="form-grid">
+            <div class="field">
+              <label for="username">Username</label>
+              <input id="username" type="text" name="username" placeholder="Choose a username" value="<%= userFormData.username || '' %>" autocomplete="username" required>
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" type="password" name="password" placeholder="Create a password" autocomplete="new-password" required>
+            </div>
+          </div>
+
+          <p class="helper-text">If the username already exists, the form will show a validation message.</p>
+
+          <div class="inline-actions">
+            <button type="submit">Create User</button>
+            <a href="/users" class="button secondary">Cancel</a>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
