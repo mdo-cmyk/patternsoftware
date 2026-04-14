@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 
-function getFirebaseConfig() {
+function getFirebaseConfigFromEnv() {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
     return JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
   }
@@ -12,7 +12,7 @@ function getFirebaseConfig() {
     : null;
 
   if (!projectId || !clientEmail || !privateKey) {
-    throw new Error('Firebase credentials are missing. Set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_PROJECT_ID/FIREBASE_CLIENT_EMAIL/FIREBASE_PRIVATE_KEY.');
+    return null;
   }
 
   return {
@@ -23,9 +23,15 @@ function getFirebaseConfig() {
 }
 
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(getFirebaseConfig())
-  });
+  const serviceAccount = getFirebaseConfigFromEnv();
+  if (serviceAccount) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  } else {
+    // On Firebase managed runtimes, Application Default Credentials are available automatically.
+    admin.initializeApp();
+  }
 }
 
 const db = admin.firestore();
